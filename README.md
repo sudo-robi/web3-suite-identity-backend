@@ -4,10 +4,33 @@
 [![Stellar](https://img.shields.io/badge/Stellar-Soroban-08B5E5?style=for-the-badge&logo=stellar&logoColor=white)](https://stellar.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com)
+[![Pino](https://img.shields.io/badge/Logging-Pino-6B7280?style=for-the-badge)](https://getpino.io)
 
 # Web3 Suite — Identity Backend
 
 A production-ready TypeScript/Express.js backend API for the Stellar Identity Suite. This service provides RESTful endpoints for DID management, verifiable credential issuance, and KYC verification — all backed by Soroban smart contracts on the Stellar network.
+
+---
+
+## Table of Contents
+
+- [Architecture](#architecture)
+- [API Endpoints](#api-endpoints)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Development](#development)
+  - [Production](#production)
+  - [Docker](#docker)
+- [Environment Variables](#environment-variables)
+- [Project Structure](#project-structure)
+- [Testing](#testing)
+- [Security](#security)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
 
 ## Architecture
 
@@ -24,9 +47,9 @@ A production-ready TypeScript/Express.js backend API for the Stellar Identity Su
 │  ┌──────────┐  ┌──────────────┐  ┌────────────┐  ┌──────────────┐  │
 │  │  Routes   │  │  Middleware   │  │  Services  │  │  Contracts   │  │
 │  │          │  │              │  │            │  │              │  │
-│  │ /did     │  │ Auth         │  │ DID        │  │ DID Registry │  │
-│  │ /creds   │  │ Validation   │  │ Credentl   │  │ Credentials  │  │
-│  │ /kyc     │  │ Rate Limit   │  │ KYC        │  │ KYC Verif.   │  │
+│  │ /did     │  │ Auth         │  │ Stellar    │  │ DID Registry │  │
+│  │ /creds   │  │ Validation   │  │ Client     │  │ Credentials  │  │
+│  │ /kyc     │  │ Rate Limit   │  │            │  │ KYC Verif.   │  │
 │  │ /health  │  │ Error Handler│  │            │  │              │  │
 │  └──────────┘  └──────────────┘  └────────────┘  └──────┬───────┘  │
 │                                                          │          │
@@ -74,6 +97,8 @@ Client Request
 └─────────────────┘
 ```
 
+---
+
 ## API Endpoints
 
 ### DID Management
@@ -115,6 +140,8 @@ Client Request
 |--------|----------|-------------|
 | `GET` | `/health` | Health check |
 | `GET` | `/api/v1/info` | API info and version |
+
+---
 
 ## Getting Started
 
@@ -196,6 +223,8 @@ docker build -t identity-backend .
 docker run -p 3000:3000 --env-file .env identity-backend
 ```
 
+---
+
 ## Environment Variables
 
 | Variable | Required | Default | Description |
@@ -212,7 +241,9 @@ docker run -p 3000:3000 --env-file .env identity-backend
 | `IPFS_API_KEY` | No | — | IPFS API key |
 | `RATE_LIMIT_WINDOW_MS` | No | `900000` | Rate limit window (ms) |
 | `RATE_LIMIT_MAX_REQUESTS` | No | `100` | Max requests per window |
-| `LOG_LEVEL` | No | `info` | Log level |
+| `LOG_LEVEL` | No | `info` | Log level (`error`, `warn`, `info`, `debug`) |
+
+---
 
 ## Project Structure
 
@@ -233,6 +264,8 @@ web3-suite-identity-backend/
 │   │   ├── validation.middleware.ts
 │   │   ├── error.middleware.ts
 │   │   └── rateLimit.middleware.ts
+│   ├── services/
+│   │   └── stellar.ts        # Unified Stellar RPC client
 │   ├── contracts/
 │   │   ├── did.contract.ts   # DID contract bindings
 │   │   ├── credential.contract.ts
@@ -243,8 +276,8 @@ web3-suite-identity-backend/
 │   │   ├── credential.types.ts
 │   │   └── kyc.types.ts
 │   └── utils/
-│       ├── logger.ts
-│       └── errors.ts
+│       ├── logger.ts         # Pino logger
+│       └── errors.ts         # AppError class
 ├── tests/
 ├── Dockerfile
 ├── docker-compose.yml
@@ -253,6 +286,8 @@ web3-suite-identity-backend/
 ├── tsconfig.json
 └── README.md
 ```
+
+---
 
 ## Testing
 
@@ -267,17 +302,30 @@ npm run test:watch
 npm run test:coverage
 ```
 
+---
+
 ## Security
 
 - **Helmet** for HTTP security headers
 - **CORS** configured for cross-origin requests
 - **Rate Limiting** to prevent abuse
 - **Zod** validation on all request bodies
+- **Pino** structured logging for production observability
 - **Environment variables** for secrets (never committed)
+
+---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/my-feature`)
+3. Commit your changes (`git commit -am 'Add my feature'`)
+4. Push to the branch (`git push origin feat/my-feature`)
+5. Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+---
 
 ## License
 

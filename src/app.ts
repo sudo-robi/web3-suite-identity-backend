@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
+import pinoHttp from 'pino-http';
 import { config } from './config';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
@@ -16,11 +16,15 @@ app.use(cors());
 app.use(rateLimiter);
 
 // Logging
-app.use(morgan('combined', {
-  stream: {
-    write: (message: string) => logger.info(message.trim()),
-  },
-}));
+app.use(
+  pinoHttp({
+    logger,
+    autoLogging:
+      config.NODE_ENV === 'production'
+        ? { ignore: (req) => req.url === '/health' }
+        : false,
+  })
+);
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));

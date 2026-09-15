@@ -1,23 +1,18 @@
-import winston from 'winston';
+import pino from 'pino';
 import { config } from '../config';
 
-export const logger = winston.createLogger({
+export const logger = pino({
   level: config.LOG_LEVEL,
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  defaultMeta: { service: 'identity-backend' },
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.printf(({ timestamp, level, message, ...meta }) => {
-          const metaStr = Object.keys(meta).length > 1 ? ` ${JSON.stringify(meta)}` : '';
-          return `${timestamp} [${level}]: ${message}${metaStr}`;
-        })
-      ),
-    }),
-  ],
+  transport:
+    config.NODE_ENV === 'development'
+      ? {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            ignore: 'pid,hostname',
+          },
+        }
+      : undefined,
+  base: { service: 'identity-backend' },
 });
